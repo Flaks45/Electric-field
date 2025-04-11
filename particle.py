@@ -50,9 +50,9 @@ class Particle(VisualPoint2D):
         Returns:
             Vector2D: Force vector acting on the particle.
         """
-        field = Vector2D(0, 0)  # Initializing the field vector to zero
+        field = Vector2D(0, 0)
         for c in self.external_charges:
-            field += c.calculate_field(Point2D(self.position.x, self.position.y))  # Sum field contributions
+            field += c.calculate_field(Point2D(self.position.x, self.position.y))
 
         return self.charge * field  # Return the force F = qE
 
@@ -112,6 +112,9 @@ class Electron(Particle):
         self.charge = -1.602e-19  # C (charge of electron)
         self.color = (0, 150, 0)  # Green color
         self.label = "e-"  # Electron label
+        self.radius = 7
+
+        self.update_font()
 
 
 class Proton(Particle):
@@ -131,3 +134,28 @@ class Proton(Particle):
         self.charge = 1.602e-19  # C (charge of proton)
         self.color = (150, 0, 150)  # Purple color
         self.label = "p+"  # Proton label
+        self.radius = 9
+
+        self.update_font()
+
+
+class Neutron(Particle):
+    """
+    Represents a neutron particle.
+
+    Inherits from Particle and sets specific values for a neutron:
+        - Mass: 1.675e-27 kg (mass of a neutron)
+        - Charge: 0 C (no charge)
+        - Color: Gray
+        - Label: "n"
+    """
+    def __init__(self, position: Point2D, velocity: Vector2D, external_charges: list[Charge]):
+        super().__init__(position, velocity, external_charges)
+
+        self.mass = 1.675e-27  # kg (mass of neutron)
+        self.charge = 0  # C (no charge)
+        self.color = (150, 150, 150)  # Gray color
+        self.label = "n"  # Neutron label
+        self.radius = 9
+
+        self.update_font()

@@ -1,9 +1,10 @@
+import math
 import pygame
 import sys
 
 from charge import Charge
 from coordinates import Vector2D, Point2D
-from particle import Electron, Proton
+from particle import Electron, Proton, Neutron
 
 
 class SimulationWindow:
@@ -29,13 +30,14 @@ class SimulationWindow:
     """
 
     def __init__(self, charges: list[Charge], width=800, height=800):
-        pygame.init()  # Initialize pygame
+        pygame.init()
         self.width = width
         self.height = height
 
-        # Create the window with the given dimensions
         self.screen = pygame.display.set_mode((self.width, self.height))
-        pygame.display.set_caption("Electric field simulation")  # Set the window's title
+        pygame.display.set_caption("Electric field simulation")
+        icon = pygame.image.load('./assets/black_logo.png')
+        pygame.display.set_icon(icon)
 
         self.charges = charges
         self.objects = []
@@ -54,33 +56,59 @@ class SimulationWindow:
             # Event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False  # Exit the loop if the window is closed
+                    running = False
 
                 if event.type == pygame.KEYDOWN:
                     x, y = pygame.mouse.get_pos()
-                    if event.key == pygame.K_1:
-                        particle = Electron(Point2D(x, y), Vector2D(0, 0), self.charges)
-                    elif event.key == pygame.K_2:
-                        particle = Proton(Point2D(x, y), Vector2D(0, 0), self.charges)
-                    self.add_dynamic_object(particle)
 
-            # Fill the screen with black (you can change this color)
+                    # Electron (1)
+                    if event.key == pygame.K_1:
+                        particles = [Electron(Point2D(x, y), Vector2D(0, 0), self.charges)]
+
+                    # Proton (2)
+                    elif event.key == pygame.K_2:
+                        particles = [Proton(Point2D(x, y), Vector2D(0, 0), self.charges)]
+
+                    # Neutron (3)
+                    elif event.key == pygame.K_3:
+                        particles = [Neutron(Point2D(x, y), Vector2D(0, 0), self.charges)]
+
+                    # Electron spam (4)
+                    elif event.key == pygame.K_4:
+                        particles = [Electron(Point2D(x, y), Vector2D(0, 0), self.charges)]
+                        radius_increase = 0
+                        for n in [8, 16, 24]:
+                            radius_increase += 5
+                            for i in range(n):
+                                angle = i * (2 * math.pi / n)
+                                pos_x = x + 3 * radius_increase * math.cos(angle)
+                                pos_y = y + 3 * radius_increase * math.sin(angle)
+
+                                particles.append(Electron(Point2D(pos_x, pos_y), Vector2D(0, 0), self.charges))
+
+                    # Avoid error when pressing another key
+                    else:
+                        continue
+
+                    # Add action particles
+                    for particle in particles:
+                        self.add_dynamic_object(particle)
+
             self.screen.fill((0, 0, 0))
 
-            # Draw all objects in the simulation
+            # Static objects
             for obj in self.objects:
                 obj.draw(self.screen)
 
-            # Update and draw dynamic objects
+            # Dynamic objects
             for obj in self.dynamic_objects:
                 obj.update(dt)
                 obj.draw(self.screen)
 
-            # Update the display with changes
             pygame.display.flip()
 
-        pygame.quit()  # Quit pygame once the loop ends
-        sys.exit()  # Exit the program
+        pygame.quit()
+        sys.exit()
 
     def add_object(self, obj):
         """Adds an object to the simulation."""
