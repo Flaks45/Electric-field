@@ -2,7 +2,6 @@ import math
 
 from charge import Charge
 from coordinates import Point2D, Vector2D
-from electron import Electron
 from simulation import SimulationWindow
 from visuals import VisualVector2D, VisualPoint2D
 

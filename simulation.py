@@ -3,7 +3,7 @@ import sys
 
 from charge import Charge
 from coordinates import Vector2D, Point2D
-from electron import Electron
+from particle import Electron, Proton
 
 
 class SimulationWindow:
@@ -56,10 +56,13 @@ class SimulationWindow:
                 if event.type == pygame.QUIT:
                     running = False  # Exit the loop if the window is closed
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = event.pos
-                    electron = Electron(Point2D(x, y), Vector2D(0, 0), self.charges)
-                    self.add_dynamic_object(electron)
+                if event.type == pygame.KEYDOWN:
+                    x, y = pygame.mouse.get_pos()
+                    if event.key == pygame.K_1:
+                        particle = Electron(Point2D(x, y), Vector2D(0, 0), self.charges)
+                    elif event.key == pygame.K_2:
+                        particle = Proton(Point2D(x, y), Vector2D(0, 0), self.charges)
+                    self.add_dynamic_object(particle)
 
             # Fill the screen with black (you can change this color)
             self.screen.fill((0, 0, 0))
