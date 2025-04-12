@@ -43,6 +43,9 @@ class SimulationWindow:
         self.objects = []
         self.dynamic_objects = []
 
+        self.static_layer = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        self.static_layer_dirty = True  # Re-render static layer only when needed
+
     def run(self):
         """
         Runs the main simulation loop. This method continuously checks for events (like closing the window),
@@ -97,13 +100,20 @@ class SimulationWindow:
             self.screen.fill((0, 0, 0))
 
             # Static objects
-            for obj in self.objects:
-                obj.draw(self.screen)
+            if self.static_layer_dirty:
+                self.static_layer.fill((0, 0, 0))  # Clear static surface
+                for obj in self.objects:
+                    obj.draw(self.static_layer)
+                self.static_layer_dirty = False
+
+            # Blit pre-rendered static layer
+            self.screen.blit(self.static_layer, (0, 0))
 
             # Dynamic objects
             for obj in self.dynamic_objects:
-                obj.update(dt)
-                obj.draw(self.screen)
+                needs_render = obj.update(dt)
+                if needs_render:
+                    obj.draw(self.screen)
 
             pygame.display.flip()
 
@@ -111,8 +121,9 @@ class SimulationWindow:
         sys.exit()
 
     def add_object(self, obj):
-        """Adds an object to the simulation."""
+        """Adds an object to the simulation and marks the static layer for re-rendering."""
         self.objects.append(obj)
+        self.static_layer_dirty = True
 
     def add_dynamic_object(self, obj):
         """Adds a dynamic object to the simulation."""

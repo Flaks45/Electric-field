@@ -6,9 +6,11 @@ from simulation import SimulationWindow
 from visuals import VisualVector2D, VisualPoint2D
 
 if __name__ == "__main__":
-    charges = [
-        Charge(-1.0e-5, Point2D(400, 400)),
-    ]
+    charges = []
+
+    for h in range(33):
+        charges.append(Charge(-5.0e-6, Point2D(0, h * 800 / 32)))
+        charges.append(Charge(5.0e-6, Point2D(800, h * 800 / 32)))
 
     simulation_window = SimulationWindow(charges)
 

@@ -24,8 +24,8 @@ class Vector2D:
         x (float): The x component of the vector.
         y (float): The y component of the vector.
     """
-    x: float
-    y: float
+    x: float = 0
+    y: float = 0
 
     def normalize(self) -> "Vector2D":
         """

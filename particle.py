@@ -28,7 +28,7 @@ class Particle(VisualPoint2D):
         self.position = position
         self.velocity = velocity
         self.external_charges = external_charges
-        self.slow_factor = 10e4  # Factor to adjust the speed of movement
+        self.slow_factor = 10e4 / 3  # Factor to adjust the speed of movement
 
         # Default values to be overridden
         self.mass = 1  # kg
@@ -92,7 +92,19 @@ class Particle(VisualPoint2D):
             dt (float): Time step in seconds.
         """
         self.move(self.calculate_force(), dt)
-        self.point = self.position  # Update the visual representation
+
+        out_of_bounds_conditions = [
+            self.position.x < 0 - self.radius,
+            self.position.x > 800 + self.radius,
+            self.position.y < 0 - self.radius,
+            self.position.y > 800 + self.radius,
+        ]
+        if any(out_of_bounds_conditions):
+            return False
+
+        # Update the visual representation
+        self.point = self.position
+        return True
 
 
 class Electron(Particle):
