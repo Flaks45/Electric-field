@@ -27,7 +27,7 @@ class VisualVector2D:
             - position: Vector2D, starting position of the arrow.
             - magnitude_clamps: tuple of (min, max, multiplier) to scale visual length.
             - arrowhead_clamps: tuple of (min, max, multiplier) to scale arrowhead size.
-            - line_width: integer width of the arrow line.
+            - width_clamps: tuple of (min, max, multiplier) to scale the line width
             - dot_size: integer radius of the fallback dot.
             - dot_treshold: float, below which a dot is drawn instead of an arrow.
         """
@@ -40,14 +40,14 @@ class VisualVector2D:
             magnitude_clamps = kwargs["magnitude_clamps"]
 
         if "arrowhead_clamps" not in kwargs:
-            arrowhead_clamps = (4, 10, 5)
+            arrowhead_clamps = (6, 15, 5)
         else:
             arrowhead_clamps = kwargs["arrowhead_clamps"]
 
-        if "line_width" not in kwargs:
-            line_width = 3
+        if "width_clamps" not in kwargs:
+            line_clamps = (2, 5, 0.7)
         else:
-            line_width = kwargs["line_width"]
+            line_clamps = kwargs["line_width"]
 
         if "dot_size" not in kwargs:
             dot_size = 4
@@ -81,6 +81,8 @@ class VisualVector2D:
         end_y = position.y + self.vector.y * scale_factor
 
         # Draw the line representing the vector
+        minimum_width, maximum_width, multiplier_width = line_clamps
+        line_width = math.ceil(max(min(math.pow(magnitude, 1/4) / multiplier_width, maximum_width), minimum_width))
         pygame.draw.line(screen, color, (position.x, position.y), (end_x, end_y), line_width)
 
         # Arrowhead

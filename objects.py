@@ -27,12 +27,17 @@ class Charge(Entity):
         outline_radius = 2
         outline_color = (255, 255, 255)
 
-        if value > 0:
+        if value == 0:
+            color = (150, 150, 150)
+            label = " "
+        elif value > 0:
             color = (255, 0, 0)
             label = "+"
-        else:
+        elif value < 0:
             color = (0, 0, 255)
             label = "-"
+        else:
+            raise ValueError(f"Value is not a number: {value}")
 
         # Get objects
         visual_point = VisualPoint2D(
