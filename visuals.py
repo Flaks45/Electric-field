@@ -1,51 +1,64 @@
 import math
 import pygame
 
-from coordinates import Vector2D, Point2D
+from coordinates import Vector2D
 
 
 class VisualVector2D:
     """
-    A class to visually represent a 2D vector as an arrow with its magnitude determining the color.
-    If the vector is (0, 0), a dot will be drawn instead.
+    A visual representation of a 2D vector.
     """
 
-    def __init__(self, vector: Vector2D, start_point: Point2D = (0, 0)):
+    def __init__(self, vector: Vector2D):
         """
-        Initializes a VisualVector2D to represent a vector as an arrow or a dot.
+        Initializes the VisualVector2D with a given vector.
 
-        Args:
-            vector (Vector2D): The vector to be represented visually.
-            start_point (Point2D): The starting point for the arrow (default is (0, 0)).
+        :param vector: An instance of Vector2D representing the direction and magnitude.
         """
         self.vector = vector
-        self.start_point = start_point
 
-    def draw(self, screen: pygame.Surface, magnitude_clamps: tuple[int, int, int] = (10, 50, 1),
-             arrowhead_clamps: tuple[int, int, int] = (4, 10, 5), line_width: int = 3,
-             dot_size: int = 5, dot_treshold: float = 0.1):
+    def draw(self, **kwargs):
         """
-        Draws the vector as an arrow on the given Pygame surface. If the vector is zero-length
-        (magnitude equals `dot_treshold`), a dot is drawn instead.
+        Draws the vector on a given surface. Arrow color, thickness, and appearance change
+        based on magnitude. A dot is drawn instead if the vector is near-zero.
 
-        The color of the vector is determined by its magnitude, ranging from blue (low magnitude)
-        to red (high magnitude). The magnitude and arrowhead size are clamped and scaled
-        according to the provided tuples.
-
-        Args:
-            screen (pygame.Surface): The Pygame surface to draw the vector on.
-            magnitude_clamps (tuple[int, int, int], optional): A tuple specifying
-                (minimum length, maximum length, magnitude scaling factor).
-                Used to clamp and scale the vector's drawn length. Default is (10, 50, 1).
-            arrowhead_clamps (tuple[int, int, int], optional): A tuple specifying
-                (minimum arrowhead size, maximum arrowhead size, arrowhead scaling factor).
-                Used to scale and clamp the arrowhead length. Default is (4, 10, 5).
-            line_width (int, optional): The width of the vector's line. Default is 3.
-            dot_size (int, optional): Radius of the dot to draw when the vector's magnitude
-                equals `dot_treshold`. Default is 5.
-            dot_treshold (float, optional): The magnitude at which the vector is considered
-                zero and a dot is drawn instead of an arrow. Default is 0.0.
+        Expected kwargs:
+            - screen: pygame Surface to draw on.
+            - position: Vector2D, starting position of the arrow.
+            - magnitude_clamps: tuple of (min, max, multiplier) to scale visual length.
+            - arrowhead_clamps: tuple of (min, max, multiplier) to scale arrowhead size.
+            - line_width: integer width of the arrow line.
+            - dot_size: integer radius of the fallback dot.
+            - dot_treshold: float, below which a dot is drawn instead of an arrow.
         """
+        screen = kwargs["screen"]
+        position = kwargs["position"]
+
+        if "magnitude_clamps" not in kwargs:
+            magnitude_clamps = (10, 50, 1)
+        else:
+            magnitude_clamps = kwargs["magnitude_clamps"]
+
+        if "arrowhead_clamps" not in kwargs:
+            arrowhead_clamps = (4, 10, 5)
+        else:
+            arrowhead_clamps = kwargs["arrowhead_clamps"]
+
+        if "line_width" not in kwargs:
+            line_width = 3
+        else:
+            line_width = kwargs["line_width"]
+
+        if "dot_size" not in kwargs:
+            dot_size = 4
+        else:
+            dot_size = kwargs["dot_size"]
+
+        if "dot_treshold" not in kwargs:
+            dot_treshold = 0.1
+        else:
+            dot_treshold = kwargs["dot_treshold"]
+
         magnitude = math.sqrt(self.vector.x ** 2 + self.vector.y ** 2)
 
         # Set color of the arrow
@@ -57,18 +70,18 @@ class VisualVector2D:
 
         # If the vector is (0, 0), draw a dot instead of an arrow
         if magnitude <= dot_treshold:
-            pygame.draw.circle(screen, color, (int(self.start_point.x), int(self.start_point.y)), dot_size)
+            pygame.draw.circle(screen, color, (int(position.x), int(position.y)), dot_size)
             return
 
         minimum_magnitude, maximum_magnitude, multiplier_magnitude = magnitude_clamps
         clamped_magnitude = max(min(magnitude / multiplier_magnitude, maximum_magnitude), minimum_magnitude)
         scale_factor = clamped_magnitude / magnitude
 
-        end_x = self.start_point.x + self.vector.x * scale_factor
-        end_y = self.start_point.y + self.vector.y * scale_factor
+        end_x = position.x + self.vector.x * scale_factor
+        end_y = position.y + self.vector.y * scale_factor
 
         # Draw the line representing the vector
-        pygame.draw.line(screen, color, (self.start_point.x, self.start_point.y), (end_x, end_y), line_width)
+        pygame.draw.line(screen, color, (position.x, position.y), (end_x, end_y), line_width)
 
         # Arrowhead
         minimum_arrowhead, maximum_arrowhead, multiplier_arrowhead = arrowhead_clamps
@@ -87,75 +100,77 @@ class VisualVector2D:
 
 class VisualPoint2D:
     """
-    A class to visually represent a 2D point as a circle with a label (e.g., "+" or "-").
+    A visual representation of a 2D point.
     """
 
-    def __init__(self, point: Point2D,
-                 label: str = " ", color: tuple[int, int, int] = (255, 255, 255), radius: int = 10):
+    def __init__(self,
+                 color: tuple[int, int, int] = (255, 255, 255), radius: int = 10,
+                 outline: bool = True, outline_radius: int = 2, outline_color: tuple[int, int, int] = (255, 255, 255),
+                 label: str = " ", label_color: tuple[int, int, int] = (255, 255, 255), font_name: str = None):
         """
-        Initializes a visual point with a label.
+        Initializes a VisualPoint2D with visual attributes and optional label.
 
-        Args:
-            point (Point2D): The position of the point.
-            label (str): Text to display inside the point, typically "+" or "-".
-            color (tuple[int, int, int]): The RGB color of the circle. Default is white.
-            radius (int): Radius of the circle. Default is 10.
+        :param color: RGB tuple for the point fill.
+        :param radius: Radius of the point circle.
+        :param outline: Whether to draw an outline around the point.
+        :param outline_radius: Width of the outline.
+        :param outline_color: RGB tuple for the outline.
+        :param label: Optional text to display at the point.
+        :param label_color: RGB tuple for the label text.
+        :param font_name: Optional font name for rendering the label.
         """
-        self.point = point
-        self.label = label
+        # Drawing info
         self.color = color
         self.radius = radius
-        self.font = pygame.font.SysFont(None, int(self.radius * 3))
+        self.outline = outline
+        self.outline_radius = outline_radius
+        self.outline_color = outline_color
 
-    def update_font(self, base_multiplier: float = 3.0, min_font_height: int = 5, font_name: str = None):
+        # Label info
+        self.label = label
+        self.label_color = label_color
+        self.font_name = font_name
+        self.font = self.get_font()
+
+    def get_font(self, base_multiplier: float = 3.0, min_font_height: int = 5):
         """
-        Adjusts the font size to ensure the label text fits within a circle defined by the radius.
+        Returns a pygame Font object that fits the label inside the point radius.
 
-        The font size starts at (radius * base_multiplier) and is reduced until the text width fits
-        within the circle's diameter or the font height reaches `min_font_height`.
-
-        Args:
-            base_multiplier (float, optional): Multiplier to determine initial font size from radius. Default is 3.0.
-            min_font_height (int, optional): Minimum allowable font height in pixels. Default is 5.
-            font_name (str, optional): Name of the font to use (uses system default if None). Default is None.
-
-        Attributes:
-            self.font (pygame.font.Font): The final font used to render the label.
-            self.label (str): The text label.
-            self.radius (int): The radius of the circle.
-
-        Returns:
-            None
+        :param base_multiplier: Multiplier to determine initial font size.
+        :param min_font_height: Minimum font height before stopping reduction.
+        :return: pygame Font object.
         """
         font_size = int(self.radius * base_multiplier)
-        self.font = pygame.font.SysFont(font_name, font_size)
-        text_width, _ = self.font.size(self.label)
+        font = pygame.font.SysFont(self.font_name, font_size)
+        text_width, _ = font.size(self.label)
 
-        while text_width > self.radius * 2 and self.font.get_height() > min_font_height:
-            font_size -= 1
-            self.font = pygame.font.SysFont(font_name, font_size)
-            text_width, _ = self.font.size(self.label)
+        while text_width > self.radius * 2 and font.get_height() > min_font_height:
+            font_size -= 2
+            font = pygame.font.SysFont(self.font_name, font_size)
+            text_width, _ = font.size(self.label)
 
-    def draw(self, screen: pygame.Surface, label_color: tuple[int, int, int] = (255, 255, 255),
-             outline: bool = True, outline_radius: int = 2, outline_color: tuple[int, int, int] = (255, 255, 255)):
+        return font
+
+    def draw(self, **kwargs):
         """
-        Draws a labeled point (a circle with optional outline and a text label) on the given Pygame surface.
+        Draws the point, outline (optional), and label (optional) on the screen.
 
-        The label is centered slightly above the point. If `outline` is enabled, an additional
-        circle is drawn beneath the main one to create an outline effect.
-
-        Args:
-            screen (pygame.Surface): The surface to draw the point and label on.
-            label_color (tuple[int, int, int], optional): RGB color of the label text. Default is white (255, 255, 255).
-            outline (bool, optional): Whether to draw an outline around the point. Default is True.
-            outline_radius (int, optional): The extra radius for the outline circle. Default is 2.
-            outline_color (tuple[int, int, int], optional): RGB color of the outline. Default is white (255, 255, 255).
+        Expected kwargs:
+            - screen: pygame Surface to draw on.
+            - position: Vector2D specifying point location on the screen.
         """
-        if outline:
-            pygame.draw.circle(screen, outline_color, (int(self.point.x), int(self.point.y)), self.radius + outline_radius)
-        pygame.draw.circle(screen, self.color, (int(self.point.x), int(self.point.y)), self.radius)
+        if "screen" not in kwargs:
+            return
+
+        screen = kwargs["screen"]
+        position = kwargs["position"]
+
+        if self.outline:
+            pygame.draw.circle(screen, self.outline_color, (int(position.x), int(position.y)),
+                               self.radius + self.outline_radius)
+        pygame.draw.circle(screen, self.color, (int(position.x), int(position.y)), self.radius)
 
         # Render label
-        text_surface = self.font.render(self.label, True, label_color)
-        text_rect = text_surface.get_rect(center=(int(self.point.x), int(self.point.y - 2)))
+        text_surface = self.font.render(self.label, True, self.label_color)
+        text_rect = text_surface.get_rect(center=(int(position.x), int(position.y - 2)))
         screen.blit(text_surface, text_rect)

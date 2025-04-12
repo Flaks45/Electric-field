@@ -1,36 +1,26 @@
 import math
 import pygame
-import random
 import sys
 
-from charge import Charge
-from coordinates import Vector2D, Point2D
-from particle import Electron, Proton, Neutron
+
+from coordinates import Point2D, Vector2D
+from objects import Electron, Positron, Proton, Neutron
 
 
 class SimulationWindow:
     """
-    Simulation window for the electric field.
-
-    Attributes:
-        width (int): The width of the window (default 800).
-        height (int): The height of the window (default 800).
-        screen (pygame.Surface): The pygame window surface where everything is drawn.
-        objects (list): A list to store all objects (e.g., VisualVector2D) to be rendered.
-        dynamic_objects (list): A list to store all dynamic objects to be rendered and updated.
-
-    Methods:
-        __init__(self, width=800, height=800):
-            Initializes the pygame window with given dimensions.
-
-        run(self):
-            Starts and runs the main simulation loop, handling events and rendering.
-
-        add_object(self, obj):
-            Adds an object to the simulation (e.g., a visual representation).
+    A window that visualizes a particle simulation, allowing user input to spawn
+    different particles with assigned properties. Supports both static and dynamic objects.
     """
 
-    def __init__(self, charges: list[Charge], width=800, height=800):
+    def __init__(self, width=800, height=800, other_info: dict = None):
+        """
+        Initializes the simulation window and Pygame. Sets up display, layers, and state.
+
+        :param width: Width of the window.
+        :param height: Height of the window.
+        :param other_info: Optional dictionary with simulation-wide parameters (e.g. slow_factor, external_charges).
+        """
         pygame.init()
         self.width = width
         self.height = height
@@ -40,17 +30,17 @@ class SimulationWindow:
         icon = pygame.image.load('./assets/black_logo.png')
         pygame.display.set_icon(icon)
 
-        self.charges = charges
         self.objects = []
-        self.dynamic_objects = []
 
         self.static_layer = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.static_layer_dirty = True  # Re-render static layer only when needed
 
+        self.other_info = other_info
+
     def run(self):
         """
-        Runs the main simulation loop. This method continuously checks for events (like closing the window),
-        updates the display, and keeps the window running until the user closes it.
+        Main loop of the simulation. Handles user input, spawns particles, updates dynamic objects,
+        renders visuals, and manages redraws. Ends when the window is closed.
         """
         clock = pygame.time.Clock()
         running = True
@@ -63,77 +53,85 @@ class SimulationWindow:
                     running = False
 
                 if event.type == pygame.KEYDOWN:
-                    x, y = pygame.mouse.get_pos()
-                    particle_event = False
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
 
                     # Electron (1)
                     if event.key == pygame.K_1:
-                        particle_event = True
-                        particles = [Electron(Point2D(x, y), Vector2D(0, 0), self.charges)]
+                        self.add_object(
+                            Electron(
+                                position=Point2D(mouse_x, mouse_y),
+                                velocity=Vector2D(0, 0),
+                                external_charges=self.other_info["external_charges"],
+                                slow_factor=self.other_info["slow_factor"]
+                            )
+                        )
 
-                    # Proton (2)
+                    # Positron (2)
                     elif event.key == pygame.K_2:
-                        particle_event = True
-                        particles = [Proton(Point2D(x, y), Vector2D(0, 0), self.charges)]
+                        self.add_object(
+                            Positron(
+                                position=Point2D(mouse_x, mouse_y),
+                                velocity=Vector2D(0, 0),
+                                external_charges=self.other_info["external_charges"],
+                                slow_factor=self.other_info["slow_factor"]
+                            )
+                        )
 
-                    # Neutron (3)
+                    # Proton (3)
                     elif event.key == pygame.K_3:
-                        particle_event = True
-                        particles = [Neutron(Point2D(x, y), Vector2D(0, 0), self.charges)]
+                        self.add_object(
+                            Proton(
+                                position=Point2D(mouse_x, mouse_y),
+                                velocity=Vector2D(0, 0),
+                                external_charges=self.other_info["external_charges"],
+                                slow_factor=self.other_info["slow_factor"]
+                            )
+                        )
 
-                    # Electron spam (4)
+                    # Neutron (4)
                     elif event.key == pygame.K_4:
-                        particle_event = True
-                        particles = [Electron(Point2D(x, y), Vector2D(0, 0), self.charges)]
-                        radius_increase = 0
-                        for n in [8, 16, 24]:
-                            radius_increase += 5
-                            for i in range(n):
-                                angle = i * (2 * math.pi / n)
-                                pos_x = x + 3 * radius_increase * math.cos(angle)
-                                pos_y = y + 3 * radius_increase * math.sin(angle)
+                        self.add_object(
+                            Neutron(
+                                position=Point2D(mouse_x, mouse_y),
+                                velocity=Vector2D(0, 0),
+                                external_charges=self.other_info["external_charges"],
+                                slow_factor=self.other_info["slow_factor"]
+                            )
+                        )
 
-                                particles.append(Electron(Point2D(pos_x, pos_y), Vector2D(0, 0), self.charges))
-
-                    # Electron spam at random velocities (5)
+                    # Electron ring (5)
                     elif event.key == pygame.K_5:
-                        particle_event = True
-                        particles = [Electron(Point2D(x, y), Vector2D(0, 0), self.charges)]
-                        radius_increase = 0
-                        for n in [8, 16, 24, 32]:
-                            radius_increase += 5
+                        for n in [1, 8, 16, 24]:
+                            offset = n * 2
                             for i in range(n):
-                                angle = i * (2 * math.pi / n)
-                                pos_x = x + 3 * radius_increase * math.cos(angle)
-                                pos_y = y + 3 * radius_increase * math.sin(angle)
-                                random_speed = Vector2D(random.randint(-1e7, 1e7), random.randint(-1e7, 1e7))
+                                angle = 2 * math.pi * i / n
+                                x = mouse_x + offset * math.cos(angle)
+                                y = mouse_y + offset * math.sin(angle)
+                                self.add_object(
+                                    Electron(
+                                        position=Point2D(x, y),
+                                        velocity=Vector2D(0, 0),
+                                        external_charges=self.other_info["external_charges"],
+                                        slow_factor=self.other_info["slow_factor"]
+                                    )
+                                )
 
-                                particles.append(Electron(Point2D(pos_x, pos_y), random_speed, self.charges))
-
-                    # Right electron beam (6)
+                    # Positron ring (6)
                     elif event.key == pygame.K_6:
-                        particle_event = True
-                        particles = []
-                        for w in range(10):
-                            for h in range(6):
-                                pos_x = x + 10 * w
-                                pos_y = y + 10 * (h - 1)
-                                particles.append(Electron(Point2D(pos_x, pos_y), Vector2D(4e7, 0), self.charges))
-
-                    # Proton spam at random velocities (7)
-                    elif event.key == pygame.K_7:
-                        particle_event = True
-                        particles = [Proton(Point2D(x, y), Vector2D(0, 0), self.charges)]
-                        radius_increase = 0
-                        for n in [8, 16, 24]:
-                            radius_increase += 5
+                        for n in [1, 8, 16, 24]:
+                            offset = n * 2
                             for i in range(n):
-                                angle = i * (2 * math.pi / n)
-                                pos_x = x + 3 * radius_increase * math.cos(angle)
-                                pos_y = y + 3 * radius_increase * math.sin(angle)
-                                random_speed = Vector2D(random.randint(-1e7, 1e7), random.randint(-1e7, 1e7))
-
-                                particles.append(Proton(Point2D(pos_x, pos_y), random_speed, self.charges))
+                                angle = 2 * math.pi * i / n
+                                x = mouse_x + offset * math.cos(angle)
+                                y = mouse_y + offset * math.sin(angle)
+                                self.add_object(
+                                    Positron(
+                                        position=Point2D(x, y),
+                                        velocity=Vector2D(0, 0),
+                                        external_charges=self.other_info["external_charges"],
+                                        slow_factor=self.other_info["slow_factor"]
+                                    )
+                                )
 
                     # Reset dynamic particles
                     elif event.key == pygame.K_r:
@@ -143,44 +141,45 @@ class SimulationWindow:
                     else:
                         continue
 
-                    # Add action particles
-                    if particle_event:
-                        for particle in particles:
-                            self.add_dynamic_object(particle)
-
-            self.screen.fill((0, 0, 0))
-
-            # Static objects
+            # Clear static layer if it's dirty
             if self.static_layer_dirty:
-                self.static_layer.fill((0, 0, 0))  # Clear static surface
+                self.static_layer.fill((0, 0, 0))
+                # Draw static objects
                 for obj in self.objects:
-                    obj.draw(self.static_layer)
+                    if not obj.dynamic:
+                        obj.visual(screen=self.static_layer)
                 self.static_layer_dirty = False
 
             # Blit pre-rendered static layer
             self.screen.blit(self.static_layer, (0, 0))
 
-            # Dynamic objects
-            for obj in self.dynamic_objects:
-                needs_render = obj.update(dt)
-                if needs_render:
-                    obj.draw(self.screen)
+            # Update dynamic objects
+            dynamic_objects = [obj for obj in self.objects if obj.dynamic]
+            for obj in dynamic_objects[:]:
+                update_data = obj.update(dt=dt, screen=self.screen)
+                if "destroy" in update_data:
+                    dynamic_objects.remove(obj)
 
+            # Refresh the display
             pygame.display.flip()
 
         pygame.quit()
         sys.exit()
 
     def add_object(self, obj):
-        """Adds an object to the simulation and marks the static layer for re-rendering."""
-        self.objects.append(obj)
-        self.static_layer_dirty = True
+        """
+        Adds an object (static or dynamic) to the simulation.
 
-    def add_dynamic_object(self, obj):
-        """Adds a dynamic object to the simulation."""
-        self.dynamic_objects.append(obj)
+        :param obj: An object.
+        """
+        self.objects.append(obj)
+
+        if not obj.dynamic:
+            self.static_layer_dirty = True
 
     def clear_dynamic_objects(self):
-        """Removes all dynamic objects from the simulation."""
-        self.dynamic_objects.clear()
-
+        """
+        Removes all dynamic objects from the simulation (e.g., moving particles).
+        Static objects are preserved.
+        """
+        self.objects = [obj for obj in self.objects if not obj.dynamic]

@@ -2,6 +2,12 @@ from dataclasses import dataclass
 import math
 
 
+"""
+Copied this from another project of mine. Feel free to use this file, it's really useful!
+- Flaks45
+"""
+
+
 @dataclass
 class Point2D:
     """

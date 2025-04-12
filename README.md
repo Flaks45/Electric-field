@@ -23,7 +23,7 @@ Run the simulation with `main.py`.
 
 This will launch the main window. Charges are hardcoded in main.py, so edit that file to customize, add, or remove them. 
 You can use as many charges as you like.
-> ⚠️ Charge values should be in the microcoulomb (µC) range for reasonable results.
+> Charge values should be in the microcoulomb (µC) range for reasonable results.
 
 # Field Examples
 <div>
@@ -49,12 +49,11 @@ Particles can be added interactively during the simulation. **They will at your 
 > Controls (keyboard):
 - `r` Clear particles.
 - `1` Electron.
-- `2` Proton.
-- `3` Neutron.
-- `4` Electron ring.
-- `5` Electron ring with random initial velocities.
-- `6` Electron beam to the right.
-- `7` Proton right with random initial velocities.
+- `2` Positron.
+- `3` Proton.
+- `4` Neutron.
+- `5` Electron ring.
+- `6` Positron ring.
 
 Simulations with electrons:
 <div>
@@ -63,11 +62,18 @@ Simulations with electrons:
   <img src="assets/field_demo_4.gif" width="30%">
 </div>
 
-Neutron and proton interaction example:
+Neutrons and protons example:
 <div>
   <img src="assets/field_demo_2.gif" width="50%">
 </div>
 
+And positrons examples:
+<div>
+  <img src="assets/field_demo_5.gif" width="30%">
+  <img src="assets/field_demo_6.gif" width="30%">
+  <img src="assets/field_demo_7.gif" width="30%">
+</div>
+
 # Notes
 - Neutrons have no charge and do not respond to the field but are included for reference.
-- **Time has been slowed down in the simulation.** Search for `self.slow_factor` in `particle.py` if you wish to change it. Default value is at 1 second every 10000 steps (or 1 second every 10000 simulation seconds).
+- **Time has been slowed down in the simulation.** Search for `slow_factor` in `main.py` if you wish to change it. Default value is at 1 second every 10000 steps (or 1 second every 10000 simulation seconds).
