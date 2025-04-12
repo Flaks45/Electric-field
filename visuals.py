@@ -23,7 +23,7 @@ class VisualVector2D:
 
     def draw(self, screen: pygame.Surface, magnitude_clamps: tuple[int, int, int] = (10, 50, 1),
              arrowhead_clamps: tuple[int, int, int] = (4, 10, 5), line_width: int = 3,
-             dot_size: int = 5, dot_treshold: float = 0.0):
+             dot_size: int = 5, dot_treshold: float = 0.1):
         """
         Draws the vector as an arrow on the given Pygame surface. If the vector is zero-length
         (magnitude equals `dot_treshold`), a dot is drawn instead.
@@ -56,7 +56,7 @@ class VisualVector2D:
         color = (red, green, blue)
 
         # If the vector is (0, 0), draw a dot instead of an arrow
-        if magnitude == dot_treshold:
+        if magnitude <= dot_treshold:
             pygame.draw.circle(screen, color, (int(self.start_point.x), int(self.start_point.y)), dot_size)
             return
 

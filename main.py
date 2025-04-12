@@ -9,8 +9,12 @@ if __name__ == "__main__":
     charges = []
 
     for h in range(33):
+        charges.append(Charge(-5.0e-6, Point2D(800, h * 800 / 32)))
         charges.append(Charge(-5.0e-6, Point2D(0, h * 800 / 32)))
-        charges.append(Charge(5.0e-6, Point2D(800, h * 800 / 32)))
+
+    for w in range(1, 32):
+        charges.append(Charge(-5.0e-6, Point2D(w * 800 / 32, 800)))
+        charges.append(Charge(-5.0e-6, Point2D(w * 800 / 32, 0)))
 
     simulation_window = SimulationWindow(charges)
 

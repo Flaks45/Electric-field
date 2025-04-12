@@ -47,10 +47,14 @@ Each individual field contribution follows:
 # Particle Simulation
 Particles can be added interactively during the simulation. **They will at your mouse position.**
 > Controls (keyboard):
+- `r` Clear particles.
 - `1` Electron.
 - `2` Proton.
 - `3` Neutron.
 - `4` Electron ring.
+- `5` Electron ring with random initial velocities.
+- `6` Electron beam to the right.
+- `7` Proton right with random initial velocities.
 
 Simulations with electrons:
 <div>

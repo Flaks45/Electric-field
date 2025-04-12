@@ -28,7 +28,7 @@ class Particle(VisualPoint2D):
         self.position = position
         self.velocity = velocity
         self.external_charges = external_charges
-        self.slow_factor = 10e4 / 3  # Factor to adjust the speed of movement
+        self.slow_factor = 10e4  # Factor to adjust the speed of movement
 
         # Default values to be overridden
         self.mass = 1  # kg

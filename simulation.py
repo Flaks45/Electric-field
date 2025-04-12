@@ -1,5 +1,6 @@
 import math
 import pygame
+import random
 import sys
 
 from charge import Charge
@@ -63,21 +64,26 @@ class SimulationWindow:
 
                 if event.type == pygame.KEYDOWN:
                     x, y = pygame.mouse.get_pos()
+                    particle_event = False
 
                     # Electron (1)
                     if event.key == pygame.K_1:
+                        particle_event = True
                         particles = [Electron(Point2D(x, y), Vector2D(0, 0), self.charges)]
 
                     # Proton (2)
                     elif event.key == pygame.K_2:
+                        particle_event = True
                         particles = [Proton(Point2D(x, y), Vector2D(0, 0), self.charges)]
 
                     # Neutron (3)
                     elif event.key == pygame.K_3:
+                        particle_event = True
                         particles = [Neutron(Point2D(x, y), Vector2D(0, 0), self.charges)]
 
                     # Electron spam (4)
                     elif event.key == pygame.K_4:
+                        particle_event = True
                         particles = [Electron(Point2D(x, y), Vector2D(0, 0), self.charges)]
                         radius_increase = 0
                         for n in [8, 16, 24]:
@@ -89,13 +95,58 @@ class SimulationWindow:
 
                                 particles.append(Electron(Point2D(pos_x, pos_y), Vector2D(0, 0), self.charges))
 
+                    # Electron spam at random velocities (5)
+                    elif event.key == pygame.K_5:
+                        particle_event = True
+                        particles = [Electron(Point2D(x, y), Vector2D(0, 0), self.charges)]
+                        radius_increase = 0
+                        for n in [8, 16, 24, 32]:
+                            radius_increase += 5
+                            for i in range(n):
+                                angle = i * (2 * math.pi / n)
+                                pos_x = x + 3 * radius_increase * math.cos(angle)
+                                pos_y = y + 3 * radius_increase * math.sin(angle)
+                                random_speed = Vector2D(random.randint(-1e7, 1e7), random.randint(-1e7, 1e7))
+
+                                particles.append(Electron(Point2D(pos_x, pos_y), random_speed, self.charges))
+
+                    # Right electron beam (6)
+                    elif event.key == pygame.K_6:
+                        particle_event = True
+                        particles = []
+                        for w in range(10):
+                            for h in range(6):
+                                pos_x = x + 10 * w
+                                pos_y = y + 10 * (h - 1)
+                                particles.append(Electron(Point2D(pos_x, pos_y), Vector2D(4e7, 0), self.charges))
+
+                    # Proton spam at random velocities (7)
+                    elif event.key == pygame.K_7:
+                        particle_event = True
+                        particles = [Proton(Point2D(x, y), Vector2D(0, 0), self.charges)]
+                        radius_increase = 0
+                        for n in [8, 16, 24]:
+                            radius_increase += 5
+                            for i in range(n):
+                                angle = i * (2 * math.pi / n)
+                                pos_x = x + 3 * radius_increase * math.cos(angle)
+                                pos_y = y + 3 * radius_increase * math.sin(angle)
+                                random_speed = Vector2D(random.randint(-1e7, 1e7), random.randint(-1e7, 1e7))
+
+                                particles.append(Proton(Point2D(pos_x, pos_y), random_speed, self.charges))
+
+                    # Reset dynamic particles
+                    elif event.key == pygame.K_r:
+                        self.clear_dynamic_objects()
+
                     # Avoid error when pressing another key
                     else:
                         continue
 
                     # Add action particles
-                    for particle in particles:
-                        self.add_dynamic_object(particle)
+                    if particle_event:
+                        for particle in particles:
+                            self.add_dynamic_object(particle)
 
             self.screen.fill((0, 0, 0))
 
@@ -128,3 +179,8 @@ class SimulationWindow:
     def add_dynamic_object(self, obj):
         """Adds a dynamic object to the simulation."""
         self.dynamic_objects.append(obj)
+
+    def clear_dynamic_objects(self):
+        """Removes all dynamic objects from the simulation."""
+        self.dynamic_objects.clear()
+
