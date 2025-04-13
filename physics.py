@@ -118,7 +118,12 @@ class ParticleLogic:
             position.x + displacement.x,
             position.y + displacement.y
         )
-        return position, net_force
+        return {
+            "position": position,
+            "velocity": self.velocity,
+            "acceleration": acceleration,
+            "force": net_force
+        }
 
     def run(self, **kwargs):
         """
@@ -129,11 +134,19 @@ class ParticleLogic:
         """
         dt = kwargs["dt"]
         position = kwargs["position"]
-        position, force = self.move(position, self.calculate_force(position), dt)
+        move_data = self.move(position, self.calculate_force(position), dt)
+
+        what_is_other_position = "force"
+        if what_is_other_position == "velocity":
+            other_position = move_data["velocity"] * 2 * 10e-7
+        elif what_is_other_position == "acceleration":
+            other_position = move_data["acceleration"] * 5 * 10e-13
+        else:
+            other_position = move_data["force"] * 10e18
 
         return {
-            "position": position,
-            "other_position": force * 10e18,
+            "position": move_data["position"],
+            "other_position": other_position,
             "width_clamps": (5, 10, 0.7),
             "arrowhead_clamps": (10, 25, 3),
             "magnitude_clamps": (25, 60, 1)

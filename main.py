@@ -5,7 +5,7 @@ from simulation import SimulationWindow
 
 
 if __name__ == "__main__":
-    charges = premade_charges[13]
+    charges = premade_charges[0]
 
     slow_factor = 10e4
     simulation_window = SimulationWindow(other_info={"external_charges": charges, "slow_factor": slow_factor})

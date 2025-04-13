@@ -112,5 +112,15 @@ premade_charges = [
         ] + [
             Charge(value=5.0e-6, position=Point2D(800, y))
             for y in range(0, 820, 20)
-        ]
+        ],
+        # 15: Two charges (both negative) horizontally aligned at (200, 400) and (600, 400)
+        [
+            Charge(value=-2.0e-5, position=Point2D(200, 400)),
+            Charge(value=-2.0e-5, position=Point2D(600, 400)),
+        ],
+        # 16: Two charges (both positive) horizontally aligned at (200, 400) and (600, 400)
+        [
+            Charge(value=2.0e-5, position=Point2D(200, 400)),
+            Charge(value=2.0e-5, position=Point2D(600, 400)),
+        ],
     ]
