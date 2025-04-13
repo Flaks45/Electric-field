@@ -4,7 +4,7 @@ import sys
 
 
 from coordinates import Point2D, Vector2D
-from objects import Electron, Positron, Proton, Neutron
+from objects import Electron, Neutron, Positron, Proton
 
 
 class SimulationWindow:

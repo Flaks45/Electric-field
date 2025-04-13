@@ -76,6 +76,8 @@ class VisualVector2D:
             color = (strong, 0, weak)
         elif self.color_scheme == "cyan-green":
             color = (weak, 128, strong)
+        elif self.color_scheme == "grayscale":
+            color = (64 + strong / 2, 64 + strong / 2, 64 + strong / 2)
         else:
             color = (255, 255, 255)
 
