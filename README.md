@@ -77,7 +77,8 @@ And positrons examples:
 # Notes
 - Neutrons have no charge and do not respond to the field but are included for reference.
 - **Time has been slowed down in the simulation.** Search for `slow_factor` in `main.py` if you wish to change it. Default value is at 1 second every 10000 steps (or 1 second every 10000 simulation seconds).
-- You can visualize forces if you enable the bool `SHOW_FORCES` in `objects.py`. It looks like this:
+- Field density can be augmented with `density` (int) in `main.py`.
+- You can visualize forces/accelerations/velocities if you enable the bool `SHOW_FORCES` in `objects.py`. It looks like this:
 <div>
   <img src="assets/field_demo_8.gif" width="50%">
 </div>
