@@ -9,13 +9,15 @@ class VisualVector2D:
     A visual representation of a 2D vector.
     """
 
-    def __init__(self, vector: Vector2D):
+    def __init__(self, vector: Vector2D, color_scheme: str = "red-blue"):
         """
         Initializes the VisualVector2D with a given vector.
 
         :param vector: An instance of Vector2D representing the direction and magnitude.
+        :param color_scheme: String that selects the color scheme of the vector.
         """
         self.vector = vector
+        self.color_scheme = color_scheme
 
     def draw(self, **kwargs):
         """
@@ -24,12 +26,13 @@ class VisualVector2D:
 
         Expected kwargs:
             - screen: pygame Surface to draw on.
-            - position: Vector2D, starting position of the arrow.
+            - position: Point2D, starting position of the arrow.
             - magnitude_clamps: tuple of (min, max, multiplier) to scale visual length.
             - arrowhead_clamps: tuple of (min, max, multiplier) to scale arrowhead size.
             - width_clamps: tuple of (min, max, multiplier) to scale the line width
             - dot_size: integer radius of the fallback dot.
             - dot_treshold: float, below which a dot is drawn instead of an arrow.
+            - other_position: Vector2D, defaults to stored one if it doesn't exist.
         """
         screen = kwargs["screen"]
         position = kwargs["position"]
@@ -47,7 +50,7 @@ class VisualVector2D:
         if "width_clamps" not in kwargs:
             line_clamps = (2, 5, 0.7)
         else:
-            line_clamps = kwargs["line_width"]
+            line_clamps = kwargs["width_clamps"]
 
         if "dot_size" not in kwargs:
             dot_size = 4
@@ -59,14 +62,22 @@ class VisualVector2D:
         else:
             dot_treshold = kwargs["dot_treshold"]
 
+        if "other_position" in kwargs:
+            self.vector = kwargs["other_position"]
+
         magnitude = math.sqrt(self.vector.x ** 2 + self.vector.y ** 2)
 
         # Set color of the arrow
         color_strength = min(max(magnitude / 50, 0), 1)
-        red = int(255 * color_strength)
-        green = 0
-        blue = int(255 * (1 - color_strength) / 2)
-        color = (red, green, blue)
+        strong = int(255 * color_strength)
+        weak = int(255 * (1 - color_strength) / 2)
+
+        if self.color_scheme == "red-blue":
+            color = (strong, 0, weak)
+        elif self.color_scheme == "cyan-green":
+            color = (weak, 128, strong)
+        else:
+            color = (255, 255, 255)
 
         # If the vector is (0, 0), draw a dot instead of an arrow
         if magnitude <= dot_treshold:
@@ -85,19 +96,38 @@ class VisualVector2D:
         line_width = math.ceil(max(min(math.pow(magnitude, 1/4) / multiplier_width, maximum_width), minimum_width))
         pygame.draw.line(screen, color, (position.x, position.y), (end_x, end_y), line_width)
 
-        # Arrowhead
+        # Arrowhead setup
         minimum_arrowhead, maximum_arrowhead, multiplier_arrowhead = arrowhead_clamps
         arrow_length = max(min(clamped_magnitude / multiplier_arrowhead, maximum_arrowhead), minimum_arrowhead)
-        angle = math.atan2(self.vector.y, self.vector.x)  # Angle of the vector in radians
+        angle = math.atan2(self.vector.y, self.vector.x)
 
-        # Calculate the points of the arrowhead
-        arrow_point1 = (
-            end_x - arrow_length * math.cos(angle - math.pi / 6), end_y - arrow_length * math.sin(angle - math.pi / 6))
-        arrow_point2 = (
-            end_x - arrow_length * math.cos(angle + math.pi / 6), end_y - arrow_length * math.sin(angle + math.pi / 6))
+        # Extend the tip slightly forward to account for line width
+        tip_extension = line_width * 0.6  # tweak as needed
+        arrow_tip = (
+            end_x + tip_extension * math.cos(angle),
+            end_y + tip_extension * math.sin(angle)
+        )
 
-        # Draw the arrowhead (a triangle)
-        pygame.draw.polygon(screen, color, [(end_x, end_y), arrow_point1, arrow_point2])
+        # Calculate base of arrowhead (shifted back by arrow_length)
+        base_x = end_x - arrow_length * math.cos(angle)
+        base_y = end_y - arrow_length * math.sin(angle)
+
+        # Compute the width of the base of the arrowhead triangle
+        head_width = arrow_length * 0.6  # Feel free to tweak
+
+        # Perpendicular angle to vector
+        perp_angle = angle + math.pi / 2
+
+        # Base corners (symmetric around base point)
+        left = (base_x + head_width * math.cos(perp_angle), base_y + head_width * math.sin(perp_angle))
+        right = (base_x - head_width * math.cos(perp_angle), base_y - head_width * math.sin(perp_angle))
+
+        # Draw line up to base of the arrowhead
+        pygame.draw.line(screen, color, (position.x, position.y), (base_x, base_y), line_width)
+
+        # Draw arrowhead
+        pygame.draw.polygon(screen, color, [arrow_tip, left, right])
+
 
 
 class VisualPoint2D:

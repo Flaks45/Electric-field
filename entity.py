@@ -35,7 +35,7 @@ class Entity:
         :return: A dictionary containing updated logic data. If the entity goes out of bounds, includes a 'destroy' key.
         """
         logic_data = self.logic(**kwargs)
-        self.visual(**kwargs)
+        self.visual(**logic_data, **kwargs)
         if abs(self.position.x) > 10e3 or abs(self.position.y) > 10e3:
             return {"destroy": True}
 
@@ -53,6 +53,7 @@ class Entity:
             run_data = element.run(position=self.position, **kwargs)
             if "position" in run_data:
                 self.position = run_data["position"]
+                del(run_data["position"])
 
             return_data.update(run_data)
 

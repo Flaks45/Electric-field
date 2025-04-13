@@ -1,6 +1,9 @@
+from coordinates import Vector2D
 from entity import Entity
 from physics import ChargeLogic, ParticleLogic
 from visuals import VisualPoint2D, VisualVector2D
+
+SHOW_FORCES = False
 
 
 class Charge(Entity):
@@ -125,6 +128,16 @@ class Electron(Entity):
             label
         )
 
+        if SHOW_FORCES:
+            visual_vector = VisualVector2D(
+                vector=Vector2D(0, 0),
+                color_scheme="cyan-green"
+            )
+
+            visuals = [visual_point, visual_vector]
+        else:
+            visuals = [visual_point]
+
         particle_logic = ParticleLogic(
             velocity,
             external_charges,
@@ -133,7 +146,7 @@ class Electron(Entity):
             charge
         )
 
-        super().__init__([visual_point], [particle_logic], True, position)
+        super().__init__(visuals, [particle_logic], True, position)
 
 
 class Positron(Entity):
@@ -179,6 +192,16 @@ class Positron(Entity):
             label
         )
 
+        if SHOW_FORCES:
+            visual_vector = VisualVector2D(
+                vector=Vector2D(0, 0),
+                color_scheme="cyan-green"
+            )
+
+            visuals = [visual_point, visual_vector]
+        else:
+            visuals = [visual_point]
+
         particle_logic = ParticleLogic(
             velocity,
             external_charges,
@@ -187,7 +210,7 @@ class Positron(Entity):
             charge
         )
 
-        super().__init__([visual_point], [particle_logic], True, position)
+        super().__init__(visuals, [particle_logic], True, position)
 
 
 class Proton(Entity):
@@ -233,6 +256,16 @@ class Proton(Entity):
             label
         )
 
+        if SHOW_FORCES:
+            visual_vector = VisualVector2D(
+                vector=Vector2D(0, 0),
+                color_scheme="cyan-green"
+            )
+
+            visuals = [visual_point, visual_vector]
+        else:
+            visuals = [visual_point]
+
         particle_logic = ParticleLogic(
             velocity,
             external_charges,
@@ -241,7 +274,7 @@ class Proton(Entity):
             charge
         )
 
-        super().__init__([visual_point], [particle_logic], True, position)
+        super().__init__(visuals, [particle_logic], True, position)
 
 
 class Neutron(Entity):
@@ -267,7 +300,7 @@ class Neutron(Entity):
         external_charges = kwargs["external_charges"]
         slow_factor = kwargs["slow_factor"]
         mass = 1.675e-27
-        charge = 1.602e-19
+        charge = 0
 
         # Visual data
         color = (150, 150, 150)
@@ -287,6 +320,16 @@ class Neutron(Entity):
             label
         )
 
+        if SHOW_FORCES:
+            visual_vector = VisualVector2D(
+                vector=Vector2D(0, 0),
+                color_scheme="cyan-green"
+            )
+
+            visuals = [visual_point, visual_vector]
+        else:
+            visuals = [visual_point]
+
         particle_logic = ParticleLogic(
             velocity,
             external_charges,
@@ -295,4 +338,4 @@ class Neutron(Entity):
             charge
         )
 
-        super().__init__([visual_point], [particle_logic], True, position)
+        super().__init__(visuals, [particle_logic], True, position)
