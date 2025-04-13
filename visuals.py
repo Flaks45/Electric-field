@@ -95,7 +95,7 @@ class VisualVector2D:
 
         # Draw the line representing the vector
         minimum_width, maximum_width, multiplier_width = line_clamps
-        line_width = math.ceil(max(min(math.pow(magnitude, 1/4) / multiplier_width, maximum_width), minimum_width))
+        line_width = math.ceil(max(min(math.pow(magnitude, 1 / 4) / multiplier_width, maximum_width), minimum_width))
         pygame.draw.line(screen, color, (position.x, position.y), (end_x, end_y), line_width)
 
         # Arrowhead setup
@@ -129,7 +129,6 @@ class VisualVector2D:
 
         # Draw arrowhead
         pygame.draw.polygon(screen, color, [arrow_tip, left, right])
-
 
 
 class VisualPoint2D:
