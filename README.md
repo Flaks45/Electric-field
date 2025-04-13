@@ -45,7 +45,7 @@ Each individual field contribution follows:
 ```
 
 # Particle Simulation
-Particles can be added interactively during the simulation. **They will at your mouse position.**
+Particles can be added interactively during the simulation. **They will appear at your mouse position.**
 > Controls (keyboard):
 - `r` Clear particles.
 - `1` Electron.
