@@ -104,5 +104,13 @@ premade_charges = [
                 value=random.uniform(-1.0e-5, 1.0e-5),
                 position=Point2D(random.randint(0, 800), random.randint(0, 800))
             ) for _ in range(random.randint(25, 35))
+        ],
+        # 14: A uniform field with positive charges on the right and negative on the left
+        [
+            Charge(value=-5.0e-6, position=Point2D(0, y))
+            for y in range(0, 820, 20)
+        ] + [
+            Charge(value=5.0e-6, position=Point2D(800, y))
+            for y in range(0, 820, 20)
         ]
     ]
